@@ -9,6 +9,8 @@
     "rootDir": "./src",
     "outDir": "./dist",
 
+    "customConditions": ["development"],
+
     "sourceMap": true,
     "declaration": true,
     "declarationMap": true,
@@ -21,6 +23,8 @@
     "isolatedModules": true,
     "noUncheckedSideEffectImports": true,
     "moduleDetection": "force",
-    "skipLibCheck": true,
-  }
+    "skipLibCheck": true
+  },
+  "include": ["src"],
+  "exclude": ["node_modules", "dist"]
 }

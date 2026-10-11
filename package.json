@@ -4,15 +4,24 @@
   "main": "index.js",
   "type": "module",
   "scripts": {
-    "dev": "tsx watch --env-file=.env ./src/index.ts",
+    "dev": "tsx watch --conditions=development --env-file=.env ./src/index.ts",
     "typecheck": "tsc --noEmit",
     "build": "tsc",
-    "start": "node dist/index.js"
+    "start:local": "node --env-file=.env dist/index.js"
   },
   "imports": {
-    "#config": "./src/config/index.js",
-    "#db": "./src/db/index.js",
-    "#lib/*": "./src/lib/*"
+    "#config": {
+      "development": "./src/config/index.js",
+      "default": "./dist/config/index.js"
+    },
+    "#db": {
+      "development": "./src/db/index.js",
+      "default": "./dist/db/index.js"
+    },
+    "#lib/*": {
+      "development": "./src/lib/*",
+      "default": "./dist/lib/*"
+    }
   },
   "dependencies": {
     "express": "^5.3.0"
