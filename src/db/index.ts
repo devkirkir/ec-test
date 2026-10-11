@@ -1,10 +1,10 @@
-import { DatabaseSync } from "node:sqlite";
+import SQLite, { type Database } from "better-sqlite3";
 import path from "node:path";
 import fs from "node:fs";
 
-let instance: DatabaseSync | undefined;
+let instance: Database | undefined;
 
-export function init(dbPath: string = "data/app.sqlite"): DatabaseSync {
+export function init(dbPath: string = "data/app.sqlite"): Database {
   if (instance) return instance;
 
   const trimmed = dbPath.trim();
@@ -14,7 +14,12 @@ export function init(dbPath: string = "data/app.sqlite"): DatabaseSync {
     fs.mkdirSync(path.dirname(resolvedPath), { recursive: true });
   }
 
-  instance = new DatabaseSync(resolvedPath);
+  instance = new SQLite(resolvedPath);
+
+  instance.pragma("journal_mode = WAL");
+  instance.pragma("busy_timeout = 5000");
+  instance.pragma("synchronous = NORMAL");
+  instance.pragma("foreign_keys = true");
 
   return instance;
 }

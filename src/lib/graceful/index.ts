@@ -1,4 +1,5 @@
 import type { Config } from "#config";
+import { forceShutdown } from "./forceShutdown.js";
 
 type ShutdownCallback = () => void | Promise<void>;
 
@@ -52,22 +53,6 @@ function graceful(deps: Deps) {
   };
 
   return { onShutdown, shutdown };
-}
-
-function forceShutdown(serviceName: string, ms: number) {
-  let timeout: NodeJS.Timeout;
-
-  const promise = new Promise<never>((_, reject) => {
-    timeout = setTimeout(() => {
-      reject(new Error(`Service ${serviceName} didn't stop within in ${ms}ms`));
-    }, ms);
-
-    timeout.unref();
-  });
-
-  const cancel = () => clearTimeout(timeout);
-
-  return { promise, cancel };
 }
 
 export default graceful;

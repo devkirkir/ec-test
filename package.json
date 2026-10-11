@@ -1,13 +1,17 @@
 {
   "name": "evercode",
   "version": "1.0.0",
-  "main": "index.js",
+  "main": "dist/index.js",
   "type": "module",
+  "engines": {
+    "node": ">=18.0"
+  },
   "scripts": {
     "dev": "tsx watch --conditions=development --env-file=.env ./src/index.ts",
     "typecheck": "tsc --noEmit",
     "build": "tsc",
-    "start:local": "node --env-file=.env dist/index.js"
+    "start:local": "node --env-file=.env dist/index.js",
+    "test": "TZ=UTC NODE_OPTIONS=--experimental-vm-modules jest"
   },
   "imports": {
     "#config": {
@@ -24,12 +28,21 @@
     }
   },
   "dependencies": {
+    "better-sqlite3": "^11.10.0",
     "express": "^5.3.0"
   },
   "devDependencies": {
+    "@jest/globals": "^30.5.2",
+    "@types/better-sqlite3": "^9.6.0",
     "@types/express": "^5.0.6",
     "@types/node": "^26.6.5",
+    "jest": "^30.5.2",
+    "supertest": "^7.3.1",
+    "ts-jest": "^29.4.14",
     "tsx": "^4.23.15",
-    "typescript": "^7.0.2"
+    "typescript": "^6.0.3"
+  },
+  "allowScripts": {
+    "better-sqlite3@11.10.0": true
   }
 }

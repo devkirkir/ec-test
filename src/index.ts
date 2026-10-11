@@ -2,7 +2,7 @@ import config from "#config";
 import * as db from "#db";
 
 import logger from "#lib/logger/index.js";
-import graceful from "#lib/graceful.js";
+import graceful from "#lib/graceful/index.js";
 import buildApp from "./app.js";
 
 import type { ProcessEventMap } from "node:process";
@@ -45,7 +45,7 @@ async function main() {
 }
 
 main().catch(async (err) => {
-  logger.error(`Failed start in main: `, err);
+  logger.error(`Failed start in main`, err);
 
   await shutdown();
   process.exit(1);

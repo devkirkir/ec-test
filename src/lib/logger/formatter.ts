@@ -5,8 +5,8 @@ const dateFormatter = new Intl.DateTimeFormat("ru-RU", {
   timeStyle: "medium",
 });
 
-export function formatter(prefix: LogLevelName, ...args: unknown[]) {
+export function formatter(prefix: LogLevelName, message: string) {
   const date = dateFormatter.format(new Date());
 
-  return `[${date}] ${prefix}: ${args}`;
+  return `[${date}] ${prefix}: ${message}`;
 }
