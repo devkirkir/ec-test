@@ -41,6 +41,10 @@ async function main() {
     });
   });
 
+  // const q = await coinMarketCap({ logger, config }).checkSymbol("TRX");
+  // const q = await coinMarketCap({ logger, config }).getPrice([1]);
+  // console.log(q);
+
   logger.info("App has been started");
 }
 
