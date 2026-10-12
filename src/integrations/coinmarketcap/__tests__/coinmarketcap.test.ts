@@ -9,7 +9,6 @@ import coinMarketCap from "../index.js";
 const defaultAdapter = coinMarketClient.defaults.adapter;
 let requests: InternalAxiosRequestConfig[];
 
-// подменяем транспорт, интерцептор и валидаторы работают по-настоящему
 const respond = (status: number, data: unknown): AxiosAdapter => {
   return async (req) => {
     requests.push(req);

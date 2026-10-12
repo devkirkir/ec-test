@@ -10,7 +10,7 @@ interface Deps extends BaseDeps {
 function coinMarketCap(deps: Deps) {
   const { convertCurrency } = deps.config.integrations.coinmarketcap;
 
-  const getPrice = async (ids: number[]): Promise<CmcPrices> => {
+  const getPrice = async (ids: number[], signal?: AbortSignal): Promise<CmcPrices> => {
     if (ids.length === 0) return { quotes: [], missing: [] };
 
     const result = await coinMarketClient.get<unknown>("/v3/cryptocurrency/quotes/latest", {
@@ -22,6 +22,7 @@ function coinMarketCap(deps: Deps) {
       headers: {
         Accept: "application/json",
       },
+      ...(signal ? { signal } : {}),
     });
 
     const prices = getPriceValidator(result.data, ids, convertCurrency);
@@ -32,7 +33,7 @@ function coinMarketCap(deps: Deps) {
     return prices;
   };
 
-  const checkSymbol = async (symbol: string): Promise<CmcCoin[]> => {
+  const checkSymbol = async (symbol: string, signal?: AbortSignal): Promise<CmcCoin[]> => {
     const result = await coinMarketClient.get<unknown>("/v1/cryptocurrency/map", {
       params: {
         symbol,
@@ -40,6 +41,7 @@ function coinMarketCap(deps: Deps) {
       headers: {
         Accept: "application/json",
       },
+      ...(signal ? { signal } : {}),
     });
 
     return checkSymbolValidator(result.data, symbol);

@@ -3,6 +3,8 @@ import * as db from "#db";
 
 import logger from "#lib/logger/index.js";
 import graceful from "#lib/graceful/index.js";
+import scheduler from "#lib/scheduler/index.js";
+import coinMarketCap from "#integrations/coinmarketcap/index.js";
 import buildApp from "./app.js";
 
 import type { ProcessEventMap } from "node:process";
@@ -41,9 +43,20 @@ async function main() {
     });
   });
 
-  // const q = await coinMarketCap({ logger, config }).checkSymbol("TRX");
-  // const q = await coinMarketCap({ logger, config }).getPrice([1]);
-  // console.log(q);
+  const cmc = coinMarketCap({ logger, config });
+
+  const syncPrice = scheduler("syncPrice", {
+    logger,
+    intervalMs: config.app.scheduleInterval * 1000,
+    task: async (signal) => {
+      const prices = await cmc.getPrice([1], signal);
+
+      console.log(prices);
+    },
+  });
+
+  syncPrice.start();
+  onShutdown("syncPrice", syncPrice.stop);
 
   logger.info("App has been started");
 }
