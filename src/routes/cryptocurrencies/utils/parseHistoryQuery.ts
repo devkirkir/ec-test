@@ -1,5 +1,7 @@
 import HttpError from "#lib/httpError.js";
 
+import rejectUnknownKeys from "./rejectUnknownKeys.js";
+
 import type { HistoryFilters, HistoryOrder } from "#repositories/priceHistory/types.js";
 
 const ALLOWED_PARAMS = ["from", "to", "limit", "offset", "order"];
@@ -9,8 +11,7 @@ const INTEGER_PATTERN = /^\d+$/;
 const ISO_DATE_PATTERN = /^(\d{4})-(\d{2})-(\d{2})(T\d{2}:\d{2}(:\d{2}(\.\d{1,3})?)?(Z|[+-]\d{2}:\d{2})?)?$/;
 
 function parseHistoryQuery(query: Record<string, unknown>): HistoryFilters {
-  const params = Object.keys(query).filter((key) => !ALLOWED_PARAMS.includes(key));
-  if (params.length > 0) throw new HttpError(400, `Unknown query params: ${params.join(", ")}`);
+  rejectUnknownKeys(query, ALLOWED_PARAMS, "query params");
 
   const from = parseDate("from", query.from);
   const to = parseDate("to", query.to);

@@ -2,6 +2,7 @@ import express from "express";
 
 import auth from "./middlewares/auth.js";
 import errorHandler from "./middlewares/errorHandler.js";
+import notFound from "./middlewares/notFound.js";
 import cryptocurrenciesRouter from "./routes/cryptocurrencies/cryptocurrencies.js";
 
 import type { Config } from "#config";
@@ -22,8 +23,12 @@ async function buildApp(deps: Deps) {
   app.use(express.json());
   app.use(auth(deps.config.apiKey));
 
-  app.use("/cryptocurrencies", cryptocurrenciesRouter({ ...deps, currency: deps.config.integrations.coinmarketcap.convertCurrency }));
+  app.use(
+    "/cryptocurrencies",
+    cryptocurrenciesRouter({ ...deps, currency: deps.config.integrations.coinmarketcap.convertCurrency }),
+  );
 
+  app.use(notFound);
   app.use(errorHandler(deps.logger));
 
   return app;

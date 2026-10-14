@@ -4,6 +4,7 @@ import HttpError from "#lib/httpError.js";
 import { isObject } from "#lib/validators/index.js";
 
 import parseSymbol from "../utils/parseSymbol.js";
+import rejectUnknownKeys from "../utils/rejectUnknownKeys.js";
 
 import type { CmcCoin } from "#integrations/coinmarketcap/types.js";
 import type { CryptocurrenciesRepository } from "#repositories/cryptocurrencies/index.js";
@@ -17,7 +18,13 @@ interface Deps {
 }
 
 const observe = (deps: Deps) => async (req: Request<{ symbol: string }>, res: Response<Cryptocurrency>) => {
+  rejectUnknownKeys(req.query, [], "query params");
+
   const { symbol } = parseBody(req.body);
+
+  if (deps.cryptocurrencies.findBySymbol(symbol)) {
+    throw new HttpError(409, `Cryptocurrency ${symbol} is already tracked`);
+  }
 
   let coins: CmcCoin[];
 
@@ -41,6 +48,8 @@ const observe = (deps: Deps) => async (req: Request<{ symbol: string }>, res: Re
 
 function parseBody(body: unknown): { symbol: string } {
   if (!isObject(body)) throw new HttpError(400, "Body must be an object");
+
+  rejectUnknownKeys(body, ["symbol"], "fields");
 
   return { symbol: parseSymbol(body.symbol) };
 }

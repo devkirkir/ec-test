@@ -2,6 +2,7 @@ import { type Database, SqliteError } from "better-sqlite3";
 import type { Cryptocurrency, CryptocurrencyRow } from "../types.js";
 import RepositoryError from "../error.js";
 import toCryptocurrency from "../toCryptocurrency.js";
+import { SELECT_CRYPTOCURRENCY } from "../selectCryptocurrency.js";
 
 export interface CreateCryptocurrency {
   cmcId: number;
@@ -10,15 +11,21 @@ export interface CreateCryptocurrency {
 }
 
 function create(db: Database) {
-  const insertStatment = db.prepare<[number, string, string], CryptocurrencyRow>(`
+  const insertStatment = db.prepare<[number, string, string]>(`
     INSERT INTO cryptocurrencies (cmc_id, symbol, name)
     VALUES (?, ?, ?)
-    RETURNING id, cmc_id, symbol, name, last_synced_at
+  `);
+
+  const selectStatment = db.prepare<[number | bigint], CryptocurrencyRow>(`
+    ${SELECT_CRYPTOCURRENCY}
+    WHERE c.id = ?
   `);
 
   return (data: CreateCryptocurrency): Cryptocurrency => {
     try {
-      const row = insertStatment.get(data.cmcId, data.symbol, data.name);
+      const { lastInsertRowid } = insertStatment.run(data.cmcId, data.symbol, data.name);
+
+      const row = selectStatment.get(lastInsertRowid);
       if (!row) throw new Error("Cryptocurrency Create: returned no row");
 
       return toCryptocurrency(row);

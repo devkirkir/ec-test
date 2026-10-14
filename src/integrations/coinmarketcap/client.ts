@@ -1,16 +1,23 @@
-import config from "#config";
 import axios from "axios";
 import { errorMapper } from "./errors/errorMapper.js";
 
-export const coinMarketClient = axios.create({
-  baseURL: config.integrations.coinmarketcap.url,
-  timeout: config.integrations.coinmarketcap.timeout,
-  headers: {
-    "X-CMC_PRO_API_KEY": config.integrations.coinmarketcap.key,
-  },
-});
+import type { Config } from "#config";
 
-coinMarketClient.interceptors.response.use(
-  (res) => res,
-  (err) => Promise.reject(errorMapper(err)),
-);
+export type CoinMarketCapConfig = Config["integrations"]["coinmarketcap"];
+
+export function createCoinMarketClient(config: CoinMarketCapConfig) {
+  const client = axios.create({
+    baseURL: config.url,
+    timeout: config.timeout,
+    headers: {
+      "X-CMC_PRO_API_KEY": config.key,
+    },
+  });
+
+  client.interceptors.response.use(
+    (res) => res,
+    (err) => Promise.reject(errorMapper(err)),
+  );
+
+  return client;
+}

@@ -3,6 +3,7 @@ import create from "./methods/create.js";
 import remove from "./methods/remove.js";
 import findAll from "./methods/findAll.js";
 import findBySymbol from "./methods/findBySymbol.js";
+import update from "./methods/update.js";
 
 interface Deps {
   db: Database;
@@ -14,6 +15,7 @@ function cryptocurrenciesRepository(deps: Deps) {
 
   return {
     create: create(db),
+    update: update(db),
     remove: remove(db),
     findAll: findAll(db),
     findBySymbol: findBySymbol(db),

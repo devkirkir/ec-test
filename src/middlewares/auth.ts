@@ -10,10 +10,10 @@ function auth(apiKey: string): RequestHandler {
   return (req, res, next) => {
     const header = req.get("Authorization");
 
-    const [scheme, token] = header?.split(" ") ?? [];
+    const [scheme, token] = header?.trim().split(/ +/) ?? [];
 
     // здесь иишка подсказала прикольную вещь: timingSafeEqual. не задумывался о такой проверке, хотя на базовом уровне безопаности лежит...
-    if (scheme !== "Bearer" || !token || !timingSafeEqual(createDigest(token), userAuthKey)) {
+    if (scheme?.toLowerCase() !== "bearer" || !token || !timingSafeEqual(createDigest(token), userAuthKey)) {
       res.set("WWW-Authenticate", "Bearer");
 
       return next(new HttpError(401, "Unauthorized"));

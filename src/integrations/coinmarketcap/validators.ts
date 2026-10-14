@@ -74,13 +74,22 @@ export function getPriceValidator(body: unknown, ids: number[], currency: string
   const requested = new Set(ids);
   const quotes: CmcQuote[] = [];
 
+  const invalidItems: string[] = [];
+
   data.forEach((item, i) => {
-    const quote = parseQuote(item, `data[${i}]`, currency);
-    if (quote && requested.has(quote.id)) quotes.push(quote);
+    try {
+      const quote = parseQuote(item, `data[${i}]`, currency);
+
+      if (quote && requested.has(quote.id)) quotes.push(quote);
+    } catch (err) {
+      if (!(err instanceof CoinMarketCapError)) throw err;
+
+      invalidItems.push(err.message);
+    }
   });
 
   const received = new Set(quotes.map((q) => q.id));
   const missing = ids.filter((id) => !received.has(id));
 
-  return { quotes, missing };
+  return { quotes, missing, invalid: invalidItems };
 }

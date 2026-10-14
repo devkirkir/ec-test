@@ -13,7 +13,7 @@
     "start:local": "node --env-file=.env dist/index.js",
     "start:docker": "node dist/index.js",
     "gen:key": "node dist/lib/apiKeyGenerator.js",
-    "test": "TZ=UTC NODE_OPTIONS=--experimental-vm-modules jest"
+    "test": "TZ=UTC NODE_OPTIONS='--experimental-vm-modules' jest"
   },
   "imports": {
     "#config": {

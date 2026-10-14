@@ -2,6 +2,7 @@ import { Router } from "express";
 
 import observe from "./routes/observe.post.js";
 import unobserve from "./routes/unobserve.delete.js";
+import update from "./routes/update.patch.js";
 import list from "./routes/list.get.js";
 import getOne from "./routes/getOne.get.js";
 import history from "./routes/history.get.js";
@@ -27,6 +28,8 @@ function cryptocurrenciesRouter(deps: Deps) {
   router.get("/:symbol/price", price(deps));
 
   router.post("/", observe(deps));
+
+  router.patch("/:symbol", update(deps));
 
   router.delete("/:symbol", unobserve(deps));
 

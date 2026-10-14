@@ -1,12 +1,11 @@
-import { afterEach, beforeEach, describe, expect, jest, test } from "@jest/globals";
-import { AxiosError, type AxiosAdapter, type InternalAxiosRequestConfig } from "axios";
+import { beforeEach, describe, expect, jest, test } from "@jest/globals";
+import { AxiosError, type AxiosAdapter, type AxiosInstance, type InternalAxiosRequestConfig } from "axios";
 import config from "#config";
 import loggerFactory from "#lib/logger/factory.js";
-import { coinMarketClient } from "../client.js";
+import { createCoinMarketClient } from "../client.js";
 import CoinMarketCapError from "../errors/error.js";
 import coinMarketCap from "../index.js";
 
-const defaultAdapter = coinMarketClient.defaults.adapter;
 let requests: InternalAxiosRequestConfig[];
 
 const respond = (status: number, data: unknown): AxiosAdapter => {
@@ -48,15 +47,13 @@ describe("[CMC] integration", () => {
   const logger = loggerFactory("ERROR");
   let warnSpy: ReturnType<typeof jest.spyOn>;
   let cmc: ReturnType<typeof coinMarketCap>;
+  let coinMarketClient: AxiosInstance;
 
   beforeEach(() => {
     requests = [];
     warnSpy = jest.spyOn(logger, "warn").mockImplementation(() => {});
-    cmc = coinMarketCap({ logger, config });
-  });
-
-  afterEach(() => {
-    if (defaultAdapter) coinMarketClient.defaults.adapter = defaultAdapter;
+    coinMarketClient = createCoinMarketClient(config.integrations.coinmarketcap);
+    cmc = coinMarketCap({ logger, config: config.integrations.coinmarketcap, client: coinMarketClient });
   });
 
   describe("getPrice", () => {
@@ -73,6 +70,7 @@ describe("[CMC] integration", () => {
           { id: 1958, symbol: "TRX", price: 0.33, lastUpdated: new Date("2026-10-12T12:38:03.000Z") },
         ],
         missing: [],
+        invalid: [],
       });
       expect(warnSpy).not.toHaveBeenCalled();
     });
@@ -101,10 +99,22 @@ describe("[CMC] integration", () => {
       expect(warnSpy).toHaveBeenCalledWith(expect.stringContaining("30938, 999"));
     });
 
+    test("skips invalid quote, keeps valid ones and warns", async () => {
+      coinMarketClient.defaults.adapter = respond(200, {
+        data: [quoteCoin(1, "BTC", 82738.85), quoteCoin(1958, "TRX", -1)],
+      });
+
+      const result = await cmc.getPrice([1, 1958]);
+
+      expect(result.quotes.map((q) => q.id)).toEqual([1]);
+      expect(result.missing).toEqual([1958]);
+      expect(warnSpy).toHaveBeenCalledWith(expect.stringContaining("data[1].quote[0].price"));
+    });
+
     test("does not call api for empty ids", async () => {
       coinMarketClient.defaults.adapter = respond(200, { data: [] });
 
-      await expect(cmc.getPrice([])).resolves.toEqual({ quotes: [], missing: [] });
+      await expect(cmc.getPrice([])).resolves.toEqual({ quotes: [], missing: [], invalid: [] });
       expect(requests).toHaveLength(0);
     });
 

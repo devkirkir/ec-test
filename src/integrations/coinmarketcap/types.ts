@@ -19,4 +19,5 @@ export interface CmcQuote {
 export interface CmcPrices {
   quotes: CmcQuote[];
   missing: number[];
+  invalid: string[];
 }

@@ -7,8 +7,10 @@ export function applySchema(db: Database) {
       cmc_id INTEGER NOT NULL UNIQUE,
       symbol VARCHAR(10) NOT NULL UNIQUE,
       name TEXT NOT NULL,
+      sync_enabled INTEGER NOT NULL DEFAULT 1,
       last_synced_at TEXT,
   
+      CONSTRAINT bool_sync_enabled CHECK (sync_enabled IN (0, 1)),
       CONSTRAINT symbol_length CHECK (length(symbol) BETWEEN 1 AND 10),
       CONSTRAINT upper_symbol CHECK (symbol = upper(symbol))
     );

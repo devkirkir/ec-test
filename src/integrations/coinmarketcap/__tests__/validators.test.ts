@@ -71,13 +71,14 @@ describe("[CMC] getPriceValidator", () => {
     expect(getPriceValidator({ data: [quoteCoin()] }, [1], "USD")).toEqual({
       quotes: [{ id: 1, symbol: "BTC", price: 82738.85, lastUpdated: new Date("2026-10-12T12:38:03.000Z") }],
       missing: [],
+      invalid: [],
     });
   });
 
   test("marks coin with null price as missing", () => {
     const body = { data: [quoteCoin({ id: 30938, cmc_rank: null, is_active: 0 }, { price: null })] };
 
-    expect(getPriceValidator(body, [30938], "USD")).toEqual({ quotes: [], missing: [30938] });
+    expect(getPriceValidator(body, [30938], "USD")).toEqual({ quotes: [], missing: [30938], invalid: [] });
   });
 
   test("marks not returned ids as missing and ignores not requested", () => {
@@ -91,14 +92,23 @@ describe("[CMC] getPriceValidator", () => {
   test.each([
     ["null body", null, "body is not an object"],
     ["data not array", { data: "x" }, "data is not an array"],
-    ["quote not array", { data: [quoteCoin({ quote: {} })] }, "data[0].quote is not an array"],
-    ["no currency in quote", { data: [quoteCoin({}, { symbol: "EUR" })] }, "has no USD entry"],
-    ["string price", { data: [quoteCoin({}, { price: "100" })] }, "data[0].quote[0].price"],
-    ["NaN price", { data: [quoteCoin({}, { price: Number.NaN })] }, "data[0].quote[0].price"],
-    ["zero price", { data: [quoteCoin({}, { price: 0 })] }, "data[0].quote[0].price"],
-    ["invalid date", { data: [quoteCoin({}, { last_updated: "yesterday" })] }, "last_updated is not a valid date"],
-    ["missing date", { data: [quoteCoin({}, { last_updated: undefined })] }, "last_updated is not a valid date"],
   ])("throws on %s", (_, body, reason) => {
     expectInvalid(() => getPriceValidator(body, [1], "USD"), reason);
+  });
+
+  test.each([
+    ["quote not array", quoteCoin({ id: 2, quote: {} }), "data[1].quote is not an array"],
+    ["no currency in quote", quoteCoin({ id: 2 }, { symbol: "EUR" }), "has no USD entry"],
+    ["string price", quoteCoin({ id: 2 }, { price: "100" }), "data[1].quote[0].price"],
+    ["NaN price", quoteCoin({ id: 2 }, { price: Number.NaN }), "data[1].quote[0].price"],
+    ["zero price", quoteCoin({ id: 2 }, { price: 0 }), "data[1].quote[0].price"],
+    ["invalid date", quoteCoin({ id: 2 }, { last_updated: "yesterday" }), "last_updated is not a valid date"],
+    ["missing date", quoteCoin({ id: 2 }, { last_updated: undefined }), "last_updated is not a valid date"],
+  ])("skips item with %s and keeps valid ones", (_, broken, reason) => {
+    const result = getPriceValidator({ data: [quoteCoin(), broken] }, [1, 2], "USD");
+
+    expect(result.quotes.map((q) => q.id)).toEqual([1]);
+    expect(result.missing).toEqual([2]);
+    expect(result.invalid).toEqual([expect.stringContaining(reason)]);
   });
 });

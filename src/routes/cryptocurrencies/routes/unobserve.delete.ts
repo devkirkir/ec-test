@@ -1,6 +1,7 @@
 import HttpError from "#lib/httpError.js";
 
 import parseSymbol from "../utils/parseSymbol.js";
+import rejectUnknownKeys from "../utils/rejectUnknownKeys.js";
 
 import type { CryptocurrenciesRepository } from "#repositories/cryptocurrencies/index.js";
 import type { Request, Response } from "express";
@@ -10,6 +11,8 @@ interface Deps {
 }
 
 const unobserve = (deps: Deps) => (req: Request<{ symbol: string }>, res: Response) => {
+  rejectUnknownKeys(req.query, [], "query params");
+
   const symbol = parseSymbol(req.params.symbol);
 
   const removed = deps.cryptocurrencies.remove(symbol);

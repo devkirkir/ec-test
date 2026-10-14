@@ -9,7 +9,11 @@ interface Deps extends BaseDeps {
 }
 
 const syncPrice = (deps: Deps) => async (signal: AbortSignal) => {
-  const ids = deps.cryptocurrencies.findAll().map((cryptocurrency) => cryptocurrency.cmcId);
+  const ids = deps.cryptocurrencies
+    .findAll()
+    .filter((cryptocurrency) => cryptocurrency.syncEnabled)
+    .map((cryptocurrency) => cryptocurrency.cmcId);
+
   if (ids.length === 0) return;
 
   const { quotes } = await deps.cmc.getPrice(ids, signal);
