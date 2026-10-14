@@ -1,6 +1,7 @@
 import { type Database, SqliteError } from "better-sqlite3";
 import type { Cryptocurrency, CryptocurrencyRow } from "../types.js";
 import RepositoryError from "../error.js";
+import toCryptocurrency from "../toCryptocurrency.js";
 
 export interface CreateCryptocurrency {
   cmcId: number;
@@ -20,13 +21,7 @@ function create(db: Database) {
       const row = insertStatment.get(data.cmcId, data.symbol, data.name);
       if (!row) throw new Error("Cryptocurrency Create: returned no row");
 
-      return {
-        id: row.id,
-        cmcId: row.cmc_id,
-        symbol: row.symbol,
-        name: row.name,
-        lastSyncedAt: row.last_synced_at,
-      };
+      return toCryptocurrency(row);
     } catch (err) {
       if (err instanceof SqliteError && err.code === "SQLITE_CONSTRAINT_UNIQUE") {
         throw new RepositoryError(

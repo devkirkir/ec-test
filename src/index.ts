@@ -1,12 +1,16 @@
 import config from "#config";
 import * as db from "#db";
 
+import buildApp from "./app.js";
+import syncPriceTask from "./tasks/syncPrice.js";
+
 import logger from "#lib/logger/index.js";
 import graceful from "#lib/graceful/index.js";
 import scheduler from "#lib/scheduler/index.js";
+
 import coinMarketCap from "#integrations/coinmarketcap/index.js";
 import cryptocurrenciesRepository from "#repositories/cryptocurrencies/index.js";
-import buildApp from "./app.js";
+import priceHistoryRepository from "#repositories/priceHistory/index.js";
 
 import type { ProcessEventMap } from "node:process";
 
@@ -37,8 +41,9 @@ async function main() {
   // вообще сделал бы единый билдер включенных интеграций, подключалось бы то, что указано, например, в env
   const cmc = coinMarketCap({ logger, config });
   const cryptocurrencies = cryptocurrenciesRepository({ db: database });
+  const priceHistory = priceHistoryRepository({ db: database });
 
-  const app = await buildApp({ logger, config, cmc, cryptocurrencies });
+  const app = await buildApp({ logger, config, cmc, cryptocurrencies, priceHistory });
 
   const server = app.listen(config.app.port);
   onShutdown("server", () => {
@@ -50,12 +55,8 @@ async function main() {
 
   const syncPrice = scheduler("syncPrice", {
     logger,
-    intervalMs: config.app.scheduleInterval * 10000,
-    task: async (signal) => {
-      const prices = await cmc.getPrice([1], signal);
-
-      console.log(prices);
-    },
+    intervalMs: config.app.scheduleInterval * 1000,
+    task: syncPriceTask({ logger, cmc, cryptocurrencies, priceHistory }),
   });
 
   syncPrice.start();
