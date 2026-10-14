@@ -10,6 +10,8 @@ export default {
     "^#config$": "<rootDir>/src/config/index.ts",
     "^#db$": "<rootDir>/src/db/index.ts",
     "^#lib/(.*)\\.(js|ts)$": "<rootDir>/src/lib/$1.ts",
+    "^#integrations/(.*)\\.(js|ts)$": "<rootDir>/src/integrations/$1.ts",
+    "^#repositories/(.*)\\.(js|ts)$": "<rootDir>/src/repositories/$1.ts",
     "^(\\.{1,2}/.*)\\.js$": "$1",
   },
   setupFiles: ["<rootDir>/test/testEnv.js"],

@@ -15,6 +15,9 @@ export interface Config {
     logLevel: LogLevelName;
     scheduleInterval: number;
   };
+  db: {
+    path: string;
+  };
   graceful: {
     timeoutMs: number;
   };
@@ -35,6 +38,9 @@ const config: Config = {
     port: parseEnvPort("APP_PORT"),
     logLevel: parseEnvLogLevel("APP_LOG_LEVEL"),
     scheduleInterval: parseEnvInteger("APP_SCHEDULE_INTERVAL_SEC"),
+  },
+  db: {
+    path: checkEnvExisting("DB_PATH"),
   },
   graceful: {
     timeoutMs: parseEnvInteger("GRACEFUL_TIMEOUT_SHUTDOWN_MS"),

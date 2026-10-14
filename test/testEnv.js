@@ -8,3 +8,4 @@ process.env.COIN_MARKET_CAP_BASE_URL = "https://cmc.test";
 process.env.COIN_MARKET_CAP_API_KEY = "test-cmc-key";
 process.env.COIN_MARKET_CAP_CONVERT_CURRENCY = "USD";
 process.env.COIN_MARKET_CAP_TIMEOUT_MS = 1000;
+process.env.DB_PATH = ":memory:";

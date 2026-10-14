@@ -1,10 +1,11 @@
 import SQLite, { type Database } from "better-sqlite3";
 import path from "node:path";
 import fs from "node:fs";
+import { applySchema } from "./schema.js";
 
 let instance: Database | undefined;
 
-export function init(dbPath: string = "data/app.sqlite"): Database {
+export function init(dbPath: string): Database {
   if (instance) return instance;
 
   const trimmed = dbPath.trim();
@@ -20,6 +21,8 @@ export function init(dbPath: string = "data/app.sqlite"): Database {
   instance.pragma("busy_timeout = 5000");
   instance.pragma("synchronous = NORMAL");
   instance.pragma("foreign_keys = true");
+
+  applySchema(instance);
 
   return instance;
 }

@@ -7,6 +7,7 @@ interface Deps extends BaseDeps {
   config: Config;
 }
 
+export type CoinMarketCap = ReturnType<typeof coinMarketCap>;
 function coinMarketCap(deps: Deps) {
   const { convertCurrency } = deps.config.integrations.coinmarketcap;
 
