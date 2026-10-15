@@ -1,9 +1,11 @@
 import express from "express";
+import swaggerUi from "swagger-ui-express";
 
 import auth from "./middlewares/auth.js";
 import errorHandler from "./middlewares/errorHandler.js";
 import notFound from "./middlewares/notFound.js";
 import cryptocurrenciesRouter from "./routes/cryptocurrencies/cryptocurrencies.js";
+import openApiSpec from "./docs/openapi.js";
 
 import type { Config } from "#config";
 import type coinMarketCap from "#integrations/coinmarketcap/index.js";
@@ -21,6 +23,13 @@ async function buildApp(deps: Deps) {
   const app = express();
 
   app.use(express.json());
+
+  // документация публичная, поэтому до auth
+  app.get("/docs/openapi.json", (_req, res) => {
+    res.json(openApiSpec);
+  });
+  app.use("/docs", swaggerUi.serve, swaggerUi.setup(openApiSpec));
+
   app.use(auth(deps.config.apiKey));
 
   app.use(

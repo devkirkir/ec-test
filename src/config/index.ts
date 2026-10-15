@@ -7,6 +7,8 @@ import { parseEnvLogLevel } from "./utils/parseEnvLogLevel.js";
 import { parseEnvMode, type EnvMode } from "./utils/parseEnvMode.js";
 import { parseEnvPort } from "./utils/parseEnvPort.js";
 
+import "dotenv/config";
+
 export interface Config {
   mode: EnvMode;
   apiKey: string;

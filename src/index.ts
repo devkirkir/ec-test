@@ -13,13 +13,11 @@ import { createCoinMarketClient } from "#integrations/coinmarketcap/client.js";
 import cryptocurrenciesRepository from "#repositories/cryptocurrencies/index.js";
 import priceHistoryRepository from "#repositories/priceHistory/index.js";
 
-import type { ProcessEventMap } from "node:process";
-
 const { onShutdown, shutdown } = graceful({ logger, config });
 
 let isStoping = false;
 
-async function closeProcess(signal: keyof ProcessEventMap) {
+async function closeProcess(signal: string) {
   if (isStoping) {
     logger.warn(`Received ${signal} during shutdown. Forced exit...`);
     process.exit(1);

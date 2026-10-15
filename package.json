@@ -4,16 +4,17 @@
   "main": "dist/index.js",
   "type": "module",
   "engines": {
-    "node": ">=18.0"
+    "node": ">=18.20.8"
   },
   "scripts": {
-    "dev": "tsx watch --conditions=development --env-file=.env ./src/index.ts",
+    "dev": "npm run build && npm run start:local",
+    "dev:watch": "tsc --watch && node --watch dist/index.js",
     "typecheck": "tsc --noEmit",
     "build": "tsc -p tsconfig.build.json",
-    "start:local": "node --env-file=.env dist/index.js",
+    "start:local": "node dist/index.js",
     "start:docker": "node dist/index.js",
     "gen:key": "node dist/lib/apiKeyGenerator.js",
-    "test": "TZ=UTC NODE_OPTIONS='--experimental-vm-modules' jest"
+    "test": "TZ=UTC NODE_OPTIONS='--experimental-vm-modules --expose-gc' jest"
   },
   "imports": {
     "#config": {
@@ -40,18 +41,20 @@
   "dependencies": {
     "axios": "^1.20.0",
     "better-sqlite3": "^11.10.0",
-    "express": "^5.3.0"
+    "dotenv": "^18.0.8",
+    "express": "^5.3.0",
+    "swagger-ui-express": "^5.0.1"
   },
   "devDependencies": {
     "@jest/globals": "^30.5.2",
     "@types/better-sqlite3": "^9.6.0",
     "@types/express": "^5.0.6",
-    "@types/node": "^26.6.5",
+    "@types/node": "^18.19.130",
     "@types/supertest": "^6.0.3",
+    "@types/swagger-ui-express": "^4.1.8",
     "jest": "^30.5.2",
     "supertest": "^7.3.1",
     "ts-jest": "^29.4.14",
-    "tsx": "^4.23.15",
     "typescript": "^6.0.3"
   },
   "allowScripts": {
