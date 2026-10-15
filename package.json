@@ -8,13 +8,12 @@
   },
   "scripts": {
     "dev": "npm run build && npm run start:local",
-    "dev:watch": "tsc --watch && node --watch dist/index.js",
     "typecheck": "tsc --noEmit",
     "build": "tsc -p tsconfig.build.json",
     "start:local": "node dist/index.js",
     "start:docker": "node dist/index.js",
     "gen:key": "node dist/lib/apiKeyGenerator.js",
-    "test": "TZ=UTC NODE_OPTIONS='--experimental-vm-modules --expose-gc' jest"
+    "test": "TZ=UTC NODE_OPTIONS='--experimental-vm-modules' jest"
   },
   "imports": {
     "#config": {

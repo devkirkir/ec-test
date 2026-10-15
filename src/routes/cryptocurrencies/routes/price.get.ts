@@ -6,14 +6,12 @@ import rejectUnknownKeys from "../utils/rejectUnknownKeys.js";
 import type { CoinMarketCap } from "#integrations/coinmarketcap/index.js";
 import type { CryptocurrenciesRepository } from "#repositories/cryptocurrencies/index.js";
 import type { Cryptocurrency } from "#repositories/cryptocurrencies/types.js";
-import type { PriceHistoryRepository } from "#repositories/priceHistory/index.js";
 import type { PriceRecord } from "#repositories/priceHistory/types.js";
 import type { Request, Response } from "express";
 
 interface Deps {
   cmc: CoinMarketCap;
   cryptocurrencies: CryptocurrenciesRepository;
-  priceHistory: PriceHistoryRepository;
   currency: string;
 }
 
@@ -33,16 +31,13 @@ const price = (deps: Deps) => async (req: Request<{ symbol: string }>, res: Resp
   const cryptocurrency = deps.cryptocurrencies.findBySymbol(symbol);
   if (!cryptocurrency) throw new HttpError(404, `Cryptocurrency ${symbol} not found`);
 
-  if (!cryptocurrency.syncEnabled || !cryptocurrency.lastSyncedAt) {
-    const live = await fetchLivePrice(deps.cmc, cryptocurrency);
-
-    return res.json({ symbol, currency: deps.currency, source: "coinmarketcap", ...live });
+  if (cryptocurrency.syncEnabled && cryptocurrency.latestPrice) {
+    return res.json({ symbol, currency: deps.currency, source: "history", ...cryptocurrency.latestPrice });
   }
 
-  const latest = deps.priceHistory.findLatest(cryptocurrency.id);
-  if (!latest) throw new HttpError(404, `Price for ${symbol} is not available yet`);
+  const live = await fetchLivePrice(deps.cmc, cryptocurrency);
 
-  res.json({ symbol, currency: deps.currency, source: "history", ...latest });
+  res.json({ symbol, currency: deps.currency, source: "coinmarketcap", ...live });
 };
 
 async function fetchLivePrice(cmc: CoinMarketCap, cryptocurrency: Cryptocurrency): Promise<PriceRecord> {

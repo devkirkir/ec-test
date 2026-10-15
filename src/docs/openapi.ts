@@ -133,9 +133,9 @@ const openApiSpec = {
         tags: ["Cryptocurrencies"],
         summary: "Актуальная цена",
         description:
-          "Если syncEnabled = true, возвращается последняя цена из истории фоновой синхронизации (source = history). " +
-          "Если syncEnabled = false, цена запрашивается напрямую из CoinMarketCap (source = coinmarketcap) " +
-          "и в историю не сохраняется.",
+          "Если syncEnabled = true и цена уже синхронизирована, возвращается последняя цена из истории " +
+          "(source = history). Если syncEnabled = false или синхронизации ещё не было, цена запрашивается " +
+          "напрямую из CoinMarketCap (source = coinmarketcap) и в историю не сохраняется.",
         responses: {
           200: {
             description: "Актуальная цена",
@@ -143,21 +143,18 @@ const openApiSpec = {
           },
           400: { $ref: "#/components/responses/BadRequest" },
           401: { $ref: "#/components/responses/Unauthorized" },
-          404: errorResponse(
-            "Криптовалюта не отслеживается или цена ещё не синхронизирована",
-            "Price for BTC is not available yet",
-          ),
+          404: { $ref: "#/components/responses/NotFound" },
           500: { $ref: "#/components/responses/InternalError" },
           502: errorResponse(
-            "Ошибка CoinMarketCap или нет цены в ответе (только при syncEnabled = false)",
+            "Ошибка CoinMarketCap или нет цены в ответе (только при запросе в CoinMarketCap)",
             "CoinMarketCap returned no price for BTC",
           ),
           503: errorResponse(
-            "Превышен лимит запросов к CoinMarketCap (только при syncEnabled = false)",
+            "Превышен лимит запросов к CoinMarketCap (только при запросе в CoinMarketCap)",
             "CoinMarketCap is unavailable",
           ),
           504: errorResponse(
-            "Таймаут запроса к CoinMarketCap (только при syncEnabled = false)",
+            "Таймаут запроса к CoinMarketCap (только при запросе в CoinMarketCap)",
             "CoinMarketCap is unavailable",
           ),
         },

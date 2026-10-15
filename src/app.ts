@@ -24,7 +24,6 @@ async function buildApp(deps: Deps) {
 
   app.use(express.json());
 
-  // документация публичная, поэтому до auth
   app.get("/docs/openapi.json", (_req, res) => {
     res.json(openApiSpec);
   });

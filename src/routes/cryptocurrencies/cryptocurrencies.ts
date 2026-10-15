@@ -22,7 +22,7 @@ interface Deps {
 function cryptocurrenciesRouter(deps: Deps) {
   const router = Router();
 
-  // можно в целом вынести в контроллеры
+  // можно в целом вынести в контроллеры, но осталю так
   router.get("/", list(deps));
   router.get("/:symbol", getOne(deps));
   router.get("/:symbol/history", history(deps));

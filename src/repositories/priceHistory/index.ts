@@ -1,7 +1,6 @@
 import { type Database } from "better-sqlite3";
 import save from "./methods/save.js";
 import findByCryptocurrency from "./methods/findByCryptocurrency.js";
-import findLatest from "./methods/findLatest.js";
 
 interface Deps {
   db: Database;
@@ -14,7 +13,6 @@ function priceHistoryRepository(deps: Deps) {
   return {
     save: save(db),
     findByCryptocurrency: findByCryptocurrency(db),
-    findLatest: findLatest(db),
   };
 }
 
